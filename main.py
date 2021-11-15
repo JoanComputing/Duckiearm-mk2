@@ -25,9 +25,9 @@ def index():
 
 def gen(camera):
     #get camera frame
-    lower_green= np.array([0, 0, 0])
-    upper_green = np.array([0, 205, 100])
-    min_area = 40
+    lower_green= np.array([8, 60, 0])
+    upper_green = np.array([79, 101, 55])
+    min_area = 4
     while True:
         frame = camera.get_frame()
         
@@ -35,7 +35,6 @@ def gen(camera):
         #frame = cv2.bitwise_and(frame, frame, mask=mask1)
         contours, hierarchy = cv2.findContours(mask1, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         for cnt in contours:
-            print(cnt)
             # Obtener rectangulo que bordea un contorno
             AREA = cv2.contourArea(cnt)
             #Filtrar por area minima
@@ -43,10 +42,9 @@ def gen(camera):
                 x,y,w,h = cv2.boundingRect(cnt)
                 #Dibujar rectangulo en el frame original
                 cv2.rectangle(frame, (x, y), (x+w, y+h), (255,0,0), -1)
-                
+        
         ret, jpeg = cv2.imencode('.jpg', frame)
         frame = jpeg.tobytes()
-        
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
 
