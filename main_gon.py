@@ -31,16 +31,18 @@ def gen(camera):
         frame = camera.get_frame()
 
         gray=cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
-        circle=cv2.HoughCircles(gray,cv2.HOUGH_GRADIENT,1,100,minRadius=0,maxRadius=10000)
+        circle=cv2.HoughCircles(gray,cv2.HOUGH_GRADIENT,dp=1,minDist=20,param1=60,param2=40,minRadius=0,maxRadius=0)
         if circle is not None:
           circle=np.round(circle[0,:])
           for x,y,r in circle:
             x=int(x)
             y=int(y)
             r=int(r)
-            print (x,y,r)
-            cv2.circle(frame,(x,y),r,(0,255,0),4)
-            cv2.rectangle(frame,(x-5,y-5),(x+5,y+5),(0,128,255,-1))
+            
+            if r<16:
+              print (x,y,r)
+              cv2.circle(frame,(x,y),r,(0,255,0),2)
+              cv2.rectangle(frame,(x-5,y-5),(x+5,y+5),(0,128,255,-1))
 
 
         ret, jpeg = cv2.imencode('.jpg', frame)
