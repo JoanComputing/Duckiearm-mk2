@@ -32,10 +32,24 @@ def gen(camera):
      ##eSTOS PARAMETROS ESTAN RE CAMBIADOS PQ ESTABA PROBANDO, LOS ORIGINALES ESTAN EN MAIN.PY
     lower_green= np.array([0, 40, 0])  #RGB 0 40 0
     upper_green = np.array([79, 101, 55]) #RGB 79 101 55
-    min_area = 0
+    min_area = 40
     while True:
         frame = camera.get_frame()
-
+        gray=cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
+        circle=cv2.HoughCircles(gray,cv2.HOUGH_GRADIENT,dp=1,minDist=20,param1=60,param2=40,minRadius=0,maxRadius=0)
+        if circle is not None:
+          circle=np.round(circle[0,:])
+          for x,y,r in circle:
+            x=int(x)
+            y=int(y)
+            r=int(r)
+            
+            if r<16:
+              print (x,y,r)
+              cv2.circle(frame,(x,y),r,(0,255,0),2)
+              cv2.rectangle(frame,(x-5,y-5),(x+5,y+5),(0,128,255,-1))
+              
+              print(x,y,r)
 
         #esta parte es para detectar por color
         
@@ -52,24 +66,15 @@ def gen(camera):
                 x1,y1,w1,h1 = cv2.boundingRect(cnt)
                 #Dibujar rectangulo en el frame original
                 cv2.rectangle(frame, (x1, y1), (x1+w1, y1+h1), (255,0,0), 1)
-               
+                cv2.rectangle(frame, (0,0), (10,10), (0,255,0), -1)
+                #print(x1+w1,y1+h1)
+                #print(AREA)
+                print("lado:",w1,h1)
+                print( "cuadrado:",x1,y1)
+               #print("centro del cuadrado:" ,xc,yc)
+                cv2.putText (frame, ("Radio: "+str((w1/2)+2)), (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1 , (255,255,255),2)
         
-        
-        gray=cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
-        circle=cv2.HoughCircles(gray,cv2.HOUGH_GRADIENT,dp=1,minDist=20,param1=60,param2=40,minRadius=0,maxRadius=0)
-        if circle is not None:
-          circle=np.round(circle[0,:])
-          for x,y,r in circle:
-            x=int(x)
-            y=int(y)
-            r=int(r)
-            
-            if r<16:
-              print (x,y,r)
-              cv2.circle(frame,(x,y),r,(0,255,0),2)
-              cv2.rectangle(frame,(x-5,y-5),(x+5,y+5),(0,128,255,-1))
-              
-              
+
         ret, jpeg = cv2.imencode('.jpg', frame)
         frame = jpeg.tobytes()
         yield (b'--frame\r\n'
