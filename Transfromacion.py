@@ -3,7 +3,7 @@ import numpy as np
 
 O1 = False
 O2 = False
-T = np.array([[0,0,0,2],[0,0,0,3],[0,0,0,4],[0,0,0,0]])
+T = np.array([[0,0,0,17],[0,0,0,0],[0,0,0,49],[0,0,0,0]])
 print("Mientras tanto, la Traslación será: \n",T)
 contador = 0
 Rx = np.array([[1,0,0,0],[0,-1,-(0),0],[0,0,-1,0],[0,0,0,1]])
