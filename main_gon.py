@@ -27,9 +27,34 @@ def index():
 
 
 def gen(camera):
+
+    #Parámetros para la detección de color
+     ##eSTOS PARAMETROS ESTAN RE CAMBIADOS PQ ESTABA PROBANDO, LOS ORIGINALES ESTAN EN MAIN.PY
+    lower_green= np.array([0, 40, 0])  #RGB 0 40 0
+    upper_green = np.array([79, 101, 55]) #RGB 79 101 55
+    min_area = 0
     while True:
         frame = camera.get_frame()
 
+
+        #esta parte es para detectar por color
+        
+        mask1 = cv2.inRange(frame, lower_green, upper_green)
+        #frame = cv2.inRange(frame, lower_green, upper_green)
+        frame = cv2.bitwise_and(frame, frame, mask=mask1)
+        
+        contours, hierarchy = cv2.findContours(mask1, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        for cnt in contours:
+            # Obtener rectangulo que bordea un contorno
+            AREA = cv2.contourArea(cnt)
+            #Filtrar por area minima
+            if AREA > min_area: # DEFINIR AREA
+                x1,y1,w1,h1 = cv2.boundingRect(cnt)
+                #Dibujar rectangulo en el frame original
+                cv2.rectangle(frame, (x1, y1), (x1+w1, y1+h1), (255,0,0), 1)
+               
+        
+        
         gray=cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
         circle=cv2.HoughCircles(gray,cv2.HOUGH_GRADIENT,dp=1,minDist=20,param1=60,param2=40,minRadius=0,maxRadius=0)
         if circle is not None:
@@ -43,13 +68,12 @@ def gen(camera):
               print (x,y,r)
               cv2.circle(frame,(x,y),r,(0,255,0),2)
               cv2.rectangle(frame,(x-5,y-5),(x+5,y+5),(0,128,255,-1))
-
-
+              
+              
         ret, jpeg = cv2.imencode('.jpg', frame)
         frame = jpeg.tobytes()
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
-
 
 @app.route('/video_feed')
 def video_feed():
@@ -60,4 +84,5 @@ if __name__ == '__main__':
 
     app.run(host='0.0.0.0', debug=False)
     
-    
+##
+#se#
