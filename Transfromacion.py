@@ -67,10 +67,15 @@ def TransFinal(u,v,r):
 
 
 def detectarCirculo(camera):
+    lower_blue= np.array([50,0,0])  #RGB 0 40 0
+    upper_blue = np.array([255,100,50]) #RGB 79 101 55
+    min_area = 40
+    
     x=None
     y=None
     r=None
     frame = camera.get_frame()
+    """
     gray=cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
     circle=cv2.HoughCircles(gray,cv2.HOUGH_GRADIENT,dp=1,minDist=20,param1=60,param2=40,minRadius=5,maxRadius=24)
     if circle is not None:
@@ -79,17 +84,34 @@ def detectarCirculo(camera):
         x=int(x)
         y=int(y)
         r=int(r)
-            
-        if r<16:
-           #print (x,y,r)
-           cv2.circle(frame,(x,y),r,(0,255,0),1)
-           cv2.rectangle(frame,(x-5,y-5),(x+5,y+5),(0,128,255,-1))
+    """
+    
+    mask1 = cv2.inRange(frame, lower_blue, upper_blue)
+    img=cv2.bitwise_and(frame, frame, mask= mask1)
+    img_out = cv2.cvtColor(img,cv2.COLOR_RGB2GRAY)
+    kernel = np.ones((5,5),np.uint8)
+    img_out = cv2.erode(img_out, kernel, iterations = 2)
+    img_out = cv2.dilate(img_out, kernel, iterations = 3)
+    circle=cv2.HoughCircles(img_out,cv2.HOUGH_GRADIENT,dp=1,minDist=50,param1=250.5,param2=10,minRadius=10,maxRadius=20)
+        
+    if circle is not None:
+      circle=np.round(circle[0,:])
+      for x,y,r in circle:
+        x=int(x)
+        y=int(y)
+        r=int(r)
+        cv2.circle(frame,(x,y),r,(0,255,0),2)
+        cv2.rectangle(frame,(x-5,y-5),(x+5,y+5),(0,128,255,-1))
+                
+      if r<16:
+        #print (x,y,r)
+        cv2.circle(frame,(x,y),r,(0,255,0),1)
+        cv2.rectangle(frame,(x-5,y-5),(x+5,y+5),(0,128,255,-1))
               
-           last_x = str(x)
-           last_y = str(y)
-           last_r = str(r)
-              
-           cv2.imwrite('prueba.png', frame)
+        last_x = str(x)
+        last_y = str(y)
+        last_r = str(r)     
+        cv2.imwrite('prueba.png', frame)
     return x,y,r
 
 #camera = VideoCamera(flip=False)
