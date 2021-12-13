@@ -6,6 +6,13 @@ from serial_control import SerialControl
 import time
 from Transfromacion import *
 import csv
+import  time
+
+def main():
+    inicio_de_tiempo = time.time()
+    tiempo_final = time.time() 
+    tiempo_transcurrido = tiempo_final - inicio_de_tiempo
+
 
 camera = VideoCamera(flip=False)
 
@@ -18,13 +25,13 @@ robot_serial.open_serial()
 # m3: 90 - 50 	brazo horizontal
 m1_min = 0
 m1_max = 90
-m1_step = 10
+m1_step = 5
 m2_min = 90
 m2_max = 160
-m2_step = 10
+m2_step = 5
 m3_min = 50
 m3_max = 80
-m3_step = 10
+m3_step = 5
 
 '''
 for i in range(6):
@@ -72,8 +79,14 @@ with open('datos.csv', 'w', newline='') as file:
               v = int(input("v: "))
               r = int(input("r: "))
               '''
-              time.sleep(2)
-              u,v,r = detectarCirculo(camera)
+              time.sleep(1.5)
+              inicio_de_tiempo = time.time()
+              u = None
+              while u is None:
+                u,v,r = detectarCirculo(camera)
+                tiempo_final = time.time()
+                if (tiempo_final - inicio_de_tiempo) > 5:
+                  break
               if u is not None:
                 x,y,z = TransFinal(u,v,r)
                 x=np.round(x,1)
